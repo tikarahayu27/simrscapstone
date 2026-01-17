@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMRS - Sistem Informasi Manajemen Rumah Sakit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .sidebar-active { background-color: #1e293b; border-left: 4px solid #3b82f6; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .diag-item:hover { background-color: #eff6ff; cursor: pointer; }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900 p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <span class="text-white font-bold text-4xl">S</span>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-900">SIMRS v2.5</h1>
+                <p class="text-slate-500 text-sm">Sistem Informasi Manajemen Rumah Sakit</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Username Petugas</label>
+                    <input type="text" id="login-user" placeholder="RMIK" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all uppercase">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <button onclick="authLogin()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-all transform active:scale-95">
+                    MASUK SISTEM
+                </button>
+            </div>
+            <p class="text-center text-[10px] text-slate-400 font-medium">Credential: RMIK / RMIK2023</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP STRUCTURE -->
+    <div id="app-screen" class="hidden flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-72 bg-slate-800 text-slate-300 flex flex-col shrink-0 overflow-y-auto">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-700">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-xl">S</div>
+                <div>
+                    <h2 class="font-bold text-white leading-none">SIMRS CORE</h2>
+                    <span class="text-[10px] text-blue-400 font-bold">MODUL RMIK TERPADU</span>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-1">
+                <p class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Registrasi & Admission</p>
+                <button onclick="showPage('pendaftaran')" id="nav-pendaftaran" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">📋 Pendaftaran Pasien</button>
+                <button onclick="showPage('cari-pasien')" id="nav-cari-pasien" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">🔍 Cari Pasien Lama</button>
+                
+                <p class="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pelayanan Klinis</p>
+                <button onclick="showPage('rekam-medis')" id="nav-rekam-medis" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">🩺 E-Rekam Medis</button>
+                <button onclick="showPage('mapping')" id="nav-mapping" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">🔗 Mapping ICD & SNOMED</button>
+                
+                <p class="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pelaporan & Mutu</p>
+                <button onclick="showPage('laporan')" id="nav-laporan" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">📊 Laporan Morbiditas</button>
+                <button onclick="showPage('top-penyakit')" id="nav-top-penyakit" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 transition-all text-sm font-medium">🏆 50 Besar Penyakit</button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 p-3 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm font-bold">
+                    KELUAR SISTEM
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm">
+                <div id="page-title" class="text-lg font-bold text-slate-800 uppercase tracking-tight">Dashboard Utama</div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs font-bold text-slate-900">Petugas: RMIK Admin</p>
+                        <p id="clock" class="text-[10px] text-slate-500 font-medium"></p>
+                    </div>
+                    <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">👤</div>
+                </div>
+            </header>
+
+            <div id="content-area" class="p-8 overflow-y-auto flex-1">
+                <!-- Content injected here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA MASTER MAPPING ---
+        const masterData = [
+            { klinis: "Acute cystitis", snomed: "68226007", icd10: "N30.0", icd9: "89.52", desc: "Peradangan kandung kemih akut" },
+            { klinis: "Acute lymphoid leukemia", snomed: "91857003", icd10: "C91.0", icd9: "99.25", desc: "Kanker darah limfositik" },
+            { klinis: "Asthma Bronchiale", snomed: "195967001", icd10: "J45.9", icd9: "93.94", desc: "Penyempitan saluran napas" },
+            { klinis: "Cardiogenic shock", snomed: "89138009", icd10: "R57.0", icd9: "37.61", desc: "Syok akibat kegagalan jantung" },
+            { klinis: "Diabetes Mellitus Type 2", snomed: "44054006", icd10: "E11.9", icd9: "99.19", desc: "Kencing manis tipe 2" },
+            { klinis: "Dyspepsia", snomed: "55476001", icd10: "K30", icd9: "44.13", desc: "Nyeri lambung / maag" },
+            { klinis: "Heart Failure", snomed: "84114007", icd10: "I50.9", icd9: "37.22", desc: "Gagal jantung kongestif" },
+            { klinis: "Hypertension", snomed: "38341003", icd10: "I10", icd9: "89.52", desc: "Tekanan darah tinggi" },
+            { klinis: "Pneumonia", snomed: "233604007", icd10: "J18.9", icd9: "93.96", desc: "Radang paru-paru" },
+            { klinis: "Tuberculosis of lung", snomed: "154283005", icd10: "A15.0", icd9: "87.44", desc: "TBC Paru" },
+            { klinis: "Acute Appendicitis", snomed: "85189001", icd10: "K35.8", icd9: "47.09", desc: "Usus buntu akut" },
+            { klinis: "Dengue Hemorrhagic Fever", snomed: "55735004", icd10: "A91", icd9: "99.18", desc: "Demam Berdarah Dengue" },
+            { klinis: "Typhoid Fever", snomed: "48736008", icd10: "A01.0", icd9: "90.59", desc: "Tifus abdominalis" },
+            { klinis: "Acute Myocardial Infarction", snomed: "57054005", icd10: "I21.9", icd9: "37.23", desc: "Serangan jantung" },
+            { klinis: "Chronic Kidney Disease", snomed: "709044004", icd10: "N18.9", icd9: "38.95", desc: "Gagal ginjal kronis" },
+            { klinis: "Gastroenteritis", snomed: "25374005", icd10: "A09.9", icd9: "96.29", desc: "Diare akut" },
+            { klinis: "Ischemic Stroke", snomed: "422504002", icd10: "I63.9", icd9: "87.03", desc: "Stroke sumbatan" },
+            { klinis: "Benign Prostatic Hyperplasia", snomed: "266569009", icd10: "N40.1", icd9: "60.29", desc: "Pembesaran prostat jinak" },
+            { klinis: "Cholelithiasis", snomed: "56594002", icd10: "K80.8", icd9: "51.10", desc: "Batu empedu" },
+            { klinis: "Cataract", snomed: "193570009", icd10: "H26.9", icd9: "13.19", desc: "Katarak lensa mata" },
+            { klinis: "Hemorrhoids", snomed: "24232009", icd10: "I84.9", icd9: "49.46", desc: "Ambeien" },
+            { klinis: "Anemia", snomed: "271737000", icd10: "D64.9", icd9: "99.04", desc: "Kurang darah" },
+            { klinis: "Osteoarthritis", snomed: "396275006", icd10: "M19.9", icd9: "81.54", desc: "Pengapuran sendi" },
+            { klinis: "Fracture of Femur", snomed: "71620000", icd10: "S72.9", icd9: "79.35", desc: "Patah tulang paha" },
+            { klinis: "Hernia Inguinalis", snomed: "28442001", icd10: "K40.9", icd9: "53.00", desc: "Turun berok" },
+            { klinis: "Cerebral Palsy", snomed: "128188000", icd10: "G80.9", icd9: "93.75", desc: "Lumpuh otak" },
+            { klinis: "Epilepsy", snomed: "84757009", icd10: "G40.9", icd9: "89.14", desc: "Ayan/Kejang" },
+            { klinis: "Schizophrenia", snomed: "58214004", icd10: "F20.9", icd9: "94.25", desc: "Gangguan jiwa berat" },
+            { klinis: "Bipolar Disorder", snomed: "13746004", icd10: "F31.9", icd9: "94.25", desc: "Gangguan suasana hati" },
+            { klinis: "Glaucoma", snomed: "80133005", icd10: "H40.9", icd9: "12.79", desc: "Tekanan bola mata" },
+            { klinis: "Acute Bronchitis", snomed: "10509002", icd10: "J20.9", icd9: "93.94", desc: "Radang bronkus akut" },
+            { klinis: "Chronic Obstructive Pulmonary Disease", snomed: "13645005", icd10: "J44.9", icd9: "93.96", desc: "PPOK" },
+            { klinis: "Gastric Ulcer", snomed: "39545004", icd10: "K25.9", icd9: "44.13", desc: "Tukak lambung" },
+            { klinis: "Cirrhosis of Liver", snomed: "19943007", icd10: "K74.6", icd9: "50.11", desc: "Sirosis hati" },
+            { klinis: "Acute Renal Failure", snomed: "14669001", icd10: "N17.9", icd9: "38.95", desc: "Gagal ginjal akut" },
+            { klinis: "Nephrotic Syndrome", snomed: "52254009", icd10: "N04.9", icd9: "90.59", desc: "Sindrom nefrotik" },
+            { klinis: "Urolithiasis", snomed: "95521008", icd10: "N20.9", icd9: "59.95", desc: "Batu saluran kemih" },
+            { klinis: "Psoriasis", snomed: "9014002", icd10: "L40.9", icd9: "86.11", desc: "Penyakit kulit autoimun" },
+            { klinis: "Systemic Lupus Erythematosus", snomed: "55464009", icd10: "M32.9", icd9: "99.39", desc: "Lupus" },
+            { klinis: "Rheumatoid Arthritis", snomed: "69896004", icd10: "M06.9", icd9: "81.54", desc: "Rematik sendi" },
+            { klinis: "Breast Cancer", snomed: "254837009", icd10: "C50.9", icd9: "85.41", desc: "Kanker payudara" },
+            { klinis: "Lung Cancer", snomed: "93880001", icd10: "C34.9", icd9: "87.41", desc: "Kanker paru" },
+            { klinis: "Cervical Cancer", snomed: "363354003", icd10: "C53.9", icd9: "67.2", desc: "Kanker leher rahim" },
+            { klinis: "Malaria", snomed: "61462000", icd10: "B54", icd9: "90.59", desc: "Malaria" },
+            { klinis: "HIV Disease", snomed: "86406008", icd10: "B20", icd9: "99.19", desc: "HIV/AIDS" },
+            { klinis: "Sepsis", snomed: "91302008", icd10: "A41.9", icd9: "99.18", desc: "Infeksi sistemik berat" },
+            { klinis: "Hydrocephalus", snomed: "230745008", icd10: "G91.9", icd9: "02.2", desc: "Kepala membesar/cairan otak" },
+            { klinis: "Hyperthyroidism", snomed: "34486009", icd10: "E05.9", icd9: "92.22", desc: "Kelenjar gondok berlebih" },
+            { klinis: "Atrial Fibrillation", snomed: "49436004", icd10: "I48.9", icd9: "37.22", desc: "Gangguan irama jantung" },
+            { klinis: "Parkinson Disease", snomed: "49049000", icd10: "G20", icd9: "93.75", desc: "Penyakit Parkinson" }
+        ];
+
+        // --- GLOBAL STATE ---
+        let listPasien = [
+            { norm: "001201", nik: "3275010101800001", nama: "TN. AHMAD JUNAIDI", tglLahir: "1980-01-01", jk: "L", alamat: "Jakarta", unit: "RAJAL", diagnosa: "Hypertension", icd10: "I10", snomed: "38341003", status: "TERLAYANI" },
+            { norm: "001202", nik: "3275010101950002", nama: "NY. SITI AMINAH", tglLahir: "1995-05-12", jk: "P", alamat: "Bekasi", unit: "RAJAL", diagnosa: "Dyspepsia", icd10: "K30", snomed: "55476001", status: "ANTRI" }
+        ];
+
+        // --- AUTHENTICATION ---
+        function authLogin() {
+            const u = document.getElementById('login-user').value.toUpperCase();
+            const p = document.getElementById('login-pass').value;
+            if (u === "RMIK" && p === "RMIK2023") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                showPage('pendaftaran');
+                startClock();
+            } else {
+                showToast("Login Gagal! Gunakan RMIK / RMIK2023", "error");
+            }
+        }
+
+        function logout() { location.reload(); }
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleString('id-ID');
+            }, 1000);
+        }
+
+        // --- NAVIGATION ---
+        function showPage(pageId) {
+            const area = document.getElementById('content-area');
+            const title = document.getElementById('page-title');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
+            const activeNav = document.getElementById('nav-' + pageId);
+            if(activeNav) activeNav.classList.add('sidebar-active');
+
+            switch(pageId) {
+                case 'pendaftaran':
+                    title.innerText = "Pendaftaran Pasien Baru";
+                    area.innerHTML = renderPendaftaran();
+                    break;
+                case 'cari-pasien':
+                    title.innerText = "Pencarian Pasien Lama";
+                    area.innerHTML = renderCariPasien();
+                    break;
+                case 'rekam-medis':
+                    title.innerText = "E-Rekam Medis (Input Klinis)";
+                    area.innerHTML = renderRekamMedis();
+                    break;
+                case 'mapping':
+                    title.innerText = "Data Master Mapping";
+                    area.innerHTML = renderMapping();
+                    break;
+                case 'laporan':
+                    title.innerText = "Laporan Morbiditas";
+                    area.innerHTML = renderLaporan();
+                    break;
+                case 'top-penyakit':
+                    title.innerText = "50 Besar Penyakit";
+                    area.innerHTML = renderTop50();
+                    break;
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderPendaftaran() {
+            return `
+            <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="bg-blue-600 p-6 text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold">Form Registrasi Pasien</h3>
+                        <p class="text-blue-100 text-xs uppercase font-bold tracking-widest mt-1">Data Identitas Baru</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="bg-blue-500/50 px-3 py-1 rounded-full text-[10px] font-bold">Auto No.RM: 00${listPasien.length + 1201}</span>
+                    </div>
+                </div>
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="text-xs font-bold text-slate-500 uppercase">NIK (KTP) *</span>
+                            <input type="text" id="p-nik" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                        </label>
+                        <label class="block">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Nama Lengkap *</span>
+                            <input type="text" id="p-nama" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none uppercase font-bold">
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="block">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Tgl Lahir</span>
+                                <input type="date" id="p-tgl" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                            </label>
+                            <label class="block">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Gender</span>
+                                <select id="p-jk" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                    <option value="L">Laki-Laki</option>
+                                    <option value="P">Perempuan</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Alamat Lengkap</span>
+                            <textarea id="p-alamat" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl h-[105px] outline-none"></textarea>
+                        </label>
+                        <label class="block">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Unit Tujuan</span>
+                            <select id="p-unit" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-blue-600">
+                                <option value="RAJAL">POLIKLINIK (RAWAT JALAN)</option>
+                                <option value="IGD">INST. GAWAT DARURAT (IGD)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="md:col-span-2 pt-6 border-t border-slate-100 flex justify-end gap-3">
+                        <button onclick="showPage('pendaftaran')" class="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm">Batal</button>
+                        <button onclick="simpanPasienBaru()" class="px-10 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg">Simpan & Daftarkan</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderCariPasien() {
+            let rows = listPasien.map(p => `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="p-4 font-mono font-bold text-blue-600">${p.norm}</td>
+                    <td class="p-4 font-bold uppercase">${p.nama}</td>
+                    <td class="p-4 text-xs font-medium text-slate-500">${p.nik}</td>
+                    <td class="p-4 text-xs font-bold uppercase">${p.jk === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-[9px] font-bold ${p.status==='TERLAYANI'?'bg-green-100 text-green-600':'bg-amber-100 text-amber-600'}">${p.status}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="layaniPasien('${p.norm}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold shadow-md">REKAM MEDIS</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+            <div class="space-y-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div class="flex-1 relative">
+                        <input type="text" onkeyup="filterTabelPasien(this.value)" placeholder="Cari berdasarkan No.RM / Nama / NIK..." class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none font-medium">
+                        <span class="absolute left-4 top-4 text-xl">🔍</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b">
+                            <tr>
+                                <th class="p-4">No. RM</th>
+                                <th class="p-4">Nama Pasien</th>
+                                <th class="p-4">NIK</th>
+                                <th class="p-4">Gender</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-pasien-body">${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        function renderRekamMedis() {
+            return `
+            <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Data Pasien</h4>
+                        <select id="rm-pasien" onchange="loadPasienInfo(this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none">
+                            <option value="">-- Pilih Antrian Pasien --</option>
+                            ${listPasien.filter(p=>p.status==='ANTRI').map(p => `<option value="${p.norm}">${p.norm} - ${p.nama}</option>`).join('')}
+                        </select>
+                        <div id="rm-info" class="mt-4 p-4 bg-blue-50 rounded-2xl hidden">
+                            <p class="text-[10px] font-bold text-blue-400 uppercase">Informasi Terpilih</p>
+                            <p id="info-nama" class="font-bold text-blue-900"></p>
+                            <p id="info-unit" class="text-xs font-medium text-blue-700"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Mapping Diagnosis</h4>
+                        <input type="text" id="rm-diag-search" onkeyup="searchDiagnosis(this.value)" placeholder="Ketik kata kunci diagnosa..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-sm mb-2">
+                        <div id="diag-results" class="max-h-60 overflow-y-auto divide-y divide-slate-100 bg-white rounded-xl border border-slate-50">
+                            <!-- Results injected here -->
+                        </div>
+                        <input type="hidden" id="final-icd10">
+                        <input type="hidden" id="final-icd9">
+                        <input type="hidden" id="final-snomed">
+                        <input type="hidden" id="final-klinis">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <label class="block">
+                                    <span class="text-xs font-bold text-slate-500 uppercase">Subjective (Keluhan Utama)</span>
+                                    <textarea id="rm-keluhan" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl h-24 outline-none text-sm"></textarea>
+                                </label>
+                                <label class="block">
+                                    <span class="text-xs font-bold text-slate-500 uppercase">Objective (Fisik & Penunjang)</span>
+                                    <textarea id="rm-fisik" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl h-24 outline-none text-sm"></textarea>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-xl">
+                                    <h5 class="text-[10px] font-bold text-indigo-500 uppercase mb-2">Planning (Terapi/Obat)</h5>
+                                    <textarea id="rm-obat" class="w-full bg-transparent outline-none h-44 text-sm font-medium text-indigo-900" placeholder="Input instruksi medis / resep..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="mapping-preview" class="mt-6 p-4 bg-slate-900 rounded-2xl hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h5 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Assessment: <span id="v-klinis"></span></h5>
+                                <span class="bg-green-500 text-white text-[8px] px-2 py-0.5 rounded font-bold uppercase">Mapped to SNOMED</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase">ICD-10</p>
+                                    <p id="v-icd10" class="text-xl font-bold text-white"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase">ICD-9-CM</p>
+                                    <p id="v-icd9" class="text-xl font-bold text-white"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase">SNOMED ID</p>
+                                    <p id="v-snomed" class="text-sm font-mono font-bold text-blue-300"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex justify-end">
+                            <button onclick="simpanRekamMedis()" class="px-12 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl">SIMPAN ASSESSMENT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderMapping() {
+            let rows = masterData.map(d => `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="p-4 font-bold text-slate-800">${d.klinis}</td>
+                    <td class="p-4 font-mono text-sm text-blue-600 font-bold">${d.snomed}</td>
+                    <td class="p-4 font-bold text-indigo-600">${d.icd10}</td>
+                    <td class="p-4 font-bold text-emerald-600">${d.icd9}</td>
+                    <td class="p-4 italic text-xs text-slate-400">${d.desc}</td>
+                </tr>
+            `).join('');
+
+            return `
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b">
+                        <tr>
+                            <th class="p-4 text-white">Diagnosis Klinis</th>
+                            <th class="p-4 text-white">SNOMED CT ID</th>
+                            <th class="p-4 text-white">ICD-10</th>
+                            <th class="p-4 text-white">ICD-9-CM</th>
+                            <th class="p-4 text-white">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">${rows}</tbody>
+                </table>
+            </div>`;
+        }
+
+        function renderLaporan() {
+            const total = listPasien.length;
+            const igd = listPasien.filter(p => p.unit === 'IGD').length;
+            const terlayani = listPasien.filter(p => p.status === 'TERLAYANI').length;
+
+            return `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Kunjungan</p>
+                    <h2 class="text-4xl font-bold text-slate-900 mt-2">${total}</h2>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pasien Terlayani</p>
+                    <h2 class="text-4xl font-bold text-green-500 mt-2">${terlayani}</h2>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kunjungan IGD</p>
+                    <h2 class="text-4xl font-bold text-blue-600 mt-2">${igd}</h2>
+                </div>
+
+                <div class="md:col-span-3 bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+                    <h4 class="font-bold text-slate-800 mb-6 uppercase tracking-tight">Data Morbiditas Terkini</h4>
+                    <table class="w-full text-sm">
+                        <thead class="border-b text-slate-400 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3 text-left">No.RM</th>
+                                <th class="p-3 text-left">Nama</th>
+                                <th class="p-3 text-left">Diagnosis</th>
+                                <th class="p-3 text-left">ICD-10</th>
+                                <th class="p-3 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${listPasien.map(p => `
+                                <tr>
+                                    <td class="p-3 font-mono font-bold">${p.norm}</td>
+                                    <td class="p-3 uppercase">${p.nama}</td>
+                                    <td class="p-3">${p.diagnosa || '-'}</td>
+                                    <td class="p-3 font-bold text-indigo-600">${p.icd10 || '-'}</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${p.status==='TERLAYANI'?'bg-green-100 text-green-600':'bg-amber-100 text-amber-600'}">${p.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        function renderTop50() {
+            // Logic menghitung frekuensi diagnosa
+            let counts = {};
+            listPasien.forEach(p => {
+                if(p.diagnosa) counts[p.diagnosa] = (counts[p.diagnosa] || 0) + 1;
+            });
+            let sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+
+            return `
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h4 class="font-bold text-slate-800 mb-6 uppercase">Top 50 Penyakit Berdasarkan ICD-10</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${sorted.length > 0 ? sorted.map(([diag, count], idx) => `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div class="flex items-center gap-4">
+                                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-xs">${idx+1}</span>
+                                <div>
+                                    <p class="font-bold text-slate-800">${diag}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold">KODE ICD-10: ${listPasien.find(p=>p.diagnosa===diag).icd10}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xl font-black text-blue-600">${count}</p>
+                                <p class="text-[8px] font-bold text-slate-400">KASUS</p>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="text-slate-400 italic">Belum ada data diagnosa yang tersimpan.</p>'}
+                </div>
+            </div>`;
+        }
+
+        // --- CORE FUNCTIONS ---
+        function simpanPasienBaru() {
+            const nik = document.getElementById('p-nik').value;
+            const nama = document.getElementById('p-nama').value;
+            const unit = document.getElementById('p-unit').value;
+
+            if(!nik || !nama) return showToast("Harap isi NIK dan Nama!", "error");
+
+            const newRM = "00" + (listPasien.length + 1201);
+            listPasien.push({
+                norm: newRM,
+                nik: nik,
+                nama: nama.toUpperCase(),
+                tglLahir: document.getElementById('p-tgl').value,
+                jk: document.getElementById('p-jk').value,
+                alamat: document.getElementById('p-alamat').value,
+                unit: unit,
+                status: "ANTRI"
+            });
+
+            showToast("Pasien Berhasil Didaftarkan! No.RM: " + newRM, "success");
+            showPage('cari-pasien');
+        }
+
+        function layaniPasien(norm) {
+            showPage('rekam-medis');
+            setTimeout(() => {
+                document.getElementById('rm-pasien').value = norm;
+                loadPasienInfo(norm);
+            }, 100);
+        }
+
+        function loadPasienInfo(norm) {
+            const p = listPasien.find(x => x.norm === norm);
+            const box = document.getElementById('rm-info');
+            if(p) {
+                box.classList.remove('hidden');
+                document.getElementById('info-nama').innerText = p.nama;
+                document.getElementById('info-unit').innerText = "UNIT ASAL: " + p.unit;
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        function searchDiagnosis(query) {
+            const results = document.getElementById('diag-results');
+            if(!query) { results.innerHTML = ""; return; }
+            
+            const filtered = masterData.filter(d => 
+                d.klinis.toLowerCase().includes(query.toLowerCase()) || 
+                d.icd10.toLowerCase().includes(query.toLowerCase())
+            );
+
+            results.innerHTML = filtered.map(d => `
+                <div onclick="pilihDiagnosis('${d.klinis}', '${d.icd10}', '${d.icd9}', '${d.snomed}')" class="p-3 diag-item transition-all">
+                    <p class="font-bold text-sm text-slate-800">${d.klinis}</p>
+                    <div class="flex gap-2 mt-1">
+                        <span class="text-[9px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-bold">ICD-10: ${d.icd10}</span>
+                        <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold">SNOMED: ${d.snomed}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function pilihDiagnosis(klinis, icd10, icd9, snomed) {
+            document.getElementById('final-klinis').value = klinis;
+            document.getElementById('final-icd10').value = icd10;
+            document.getElementById('final-icd9').value = icd9;
+            document.getElementById('final-snomed').value = snomed;
+            document.getElementById('rm-diag-search').value = klinis;
+            document.getElementById('diag-results').innerHTML = "";
+
+            // Show preview
+            document.getElementById('mapping-preview').classList.remove('hidden');
+            document.getElementById('v-klinis').innerText = klinis;
+            document.getElementById('v-icd10').innerText = icd10;
+            document.getElementById('v-icd9').innerText = icd9;
+            document.getElementById('v-snomed').innerText = snomed;
+        }
+
+        function simpanRekamMedis() {
+            const norm = document.getElementById('rm-pasien').value;
+            const icd10 = document.getElementById('final-icd10').value;
+
+            if(!norm || !icd10) return showToast("Pilih pasien dan diagnosis mapping!", "error");
+
+            const idx = listPasien.findIndex(p => p.norm === norm);
+            listPasien[idx].diagnosa = document.getElementById('final-klinis').value;
+            listPasien[idx].icd10 = icd10;
+            listPasien[idx].snomed = document.getElementById('final-snomed').value;
+            listPasien[idx].status = "TERLAYANI";
+
+            showToast("Rekam Medis Tersimpan & Kode Ter-mapping!", "success");
+            showPage('laporan');
+        }
+
+        function filterTabelPasien(val) {
+            const query = val.toLowerCase();
+            const rows = document.querySelectorAll('#tabel-pasien-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function showToast(msg, type) {
+            const div = document.createElement('div');
+            div.className = `fixed bottom-8 right-8 px-6 py-4 rounded-2xl text-white font-bold shadow-2xl z-[300] transition-all transform translate-y-20 ${type==='success'?'bg-emerald-500':'bg-red-500'}`;
+            div.innerText = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.classList.remove('translate-y-20'), 100);
+            setTimeout(() => {
+                div.classList.add('translate-y-20');
+                setTimeout(() => div.remove(), 500);
+            }, 3000);
+        }
+
+        // Initialize view
+        showPage('pendaftaran');
+    </script>
+</body>
+</html>
